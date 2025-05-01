@@ -32,7 +32,6 @@ The architecture adopted was based on the **Clean Architecture** pattern, promot
 - **Utils**: Contains reusable helper functions.
   - **Errors**: Custom error classes for error handling.
   - **Logger**: Structured logging system.
-  - **Swagger**: API documentation.
 
 This structure improves cohesion, facilitates testing, and allows the system to evolve without strong coupling, following SOLID principles:
 
@@ -53,7 +52,6 @@ This structure improves cohesion, facilitates testing, and allows the system to 
 - **knex**: SQL query builder for Node.js.
 - **morgan**: HTTP request logger.
 - **pg**: PostgreSQL client for Node.js.
-- **swagger-jsdoc** and **swagger-ui-express**: Interactive API documentation.
 - **winston**: Structured logging system.
 - **nodemon**: Automatic server restart during development.
 - **jest**: Unit testing framework.
@@ -69,7 +67,6 @@ This structure improves cohesion, facilitates testing, and allows the system to 
 - **Dependency Injection**: Components receive their dependencies via constructor.
 - **Advanced Error Handling**: Custom error hierarchy with centralized middleware.
 - **Multi-Layer Validation**: Validation in entities and middlewares.
-- **Swagger Documentation**: Fully documented API with interactive interface.
 - **Structured Logging**: Logging system with different levels and formats.
 - **Complete CRUD**: Implementation of all operations for students.
 - **Comprehensive Tests**: Unit and integration tests for all functionalities.
@@ -161,7 +158,6 @@ npm start
 \`\`\`
 
 > The server will be available at: [http://localhost:3050](http://localhost:3050)
-> Swagger documentation will be available at: [http://localhost:3050/api-docs](http://localhost:3050/api-docs)
 
 ---
 
@@ -186,7 +182,6 @@ src/
 ├── utils/                   # Utilities
 │   ├── errors.js            # Error classes
 │   ├── logger.js            # Logging configuration
-│   └── swagger.js           # Swagger configuration
 ├── config/                  # Configurations
 │   └── knexfile.js          # Knex configuration
 ├── app.js                   # Express configuration
@@ -206,8 +201,6 @@ The API offers the following endpoints:
 - **DELETE /api/v1/students/:id**: Remove a student
 
 All endpoints require authentication via JWT token in the `Authorization: Bearer {token}` header.
-
-For more details, see the Swagger documentation available at `/api-docs`.
 
 ---
 
