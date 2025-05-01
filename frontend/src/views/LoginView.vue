@@ -14,17 +14,6 @@
           </v-card-item>
           
           <v-card-text class="pa-6">
-            <v-alert
-              v-if="errorMessage"
-              type="error"
-              variant="tonal"
-              closable
-              class="mb-4"
-              @click:close="errorMessage = ''"
-            >
-              {{ errorMessage }}
-            </v-alert>
-            
             <v-form ref="form" v-model="valid" @submit.prevent="login">
               <v-text-field
                 v-model="email"
@@ -95,19 +84,37 @@
         </v-card>
       </v-col>
     </v-row>
+    
+    <v-snackbar
+      v-model="showToast"
+      :color="toastColor"
+      :timeout="5000"
+      location="top"
+    >
+      {{ toastMessage }}
+      
+      <template v-slot:actions>
+        <v-btn
+          variant="text"
+          icon="mdi-close"
+          @click="showToast = false"
+        ></v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
-</template>
-
-<script>
-import { useRouter } from "vue-router"
-import { useAuthStore } from "@/stores/auth"
-
-export default {
+  </template>
+  
+  <script>
+  import { useRouter } from "vue-router"
+  import { useAuthStore } from "@/stores/auth"
+  import { translateMessage } from "@/services/translationService"
+  
+  export default {
   name: "LoginView",
   setup() {
     const router = useRouter()
     const authStore = useAuthStore()
-
+  
     return { router, authStore }
   },
   data() {
@@ -115,7 +122,9 @@ export default {
       valid: false,
       loading: false,
       showPassword: false,
-      errorMessage: "",
+      showToast: false,
+      toastMessage: "",
+      toastColor: "error",
       email: "",
       password: "",
       rememberMe: false,
@@ -125,7 +134,7 @@ export default {
       ],
       passwordRules: [
         (v) => !!v || "Senha é obrigatória",
-        (v) => v.length >= 6 || "A senha deve ter pelo menos 6 caracteres"
+        (v) => v.length >= 5 || "A senha deve ter pelo menos 5 caracteres"
       ],
     }
   },
@@ -135,16 +144,41 @@ export default {
     }
   },
   methods: {
+    showToastMessage(message, isError = true) {
+      this.toastMessage = translateMessage(message);
+      this.toastColor = isError ? "error" : "success";
+      this.showToast = true;
+    },
+    
     async login() {
       if (!this.$refs.form.validate()) return
-
+  
       this.loading = true
-
+  
       try {
-        await this.authStore.login(this.email, this.password)
+        const response = await this.authStore.login(this.email, this.password)
+        
+        if (response && response.message) {
+          this.showToastMessage(response.message, false);
+        }
+        
         this.router.push("/alunos")
       } catch (error) {
-        this.errorMessage = error.response?.data?.message || "Erro ao fazer login. Verifique suas credenciais."
+        console.error("Login error:", error)
+        
+        if (error.response) {
+          if (error.response.data && error.response.data.message) {
+            let message = error.response.data.message;
+            
+            this.showToastMessage(message, true);
+          } else {
+            this.showToastMessage(`Erro ${error.response.status}: Falha na autenticação.`, true);
+          }
+        } else if (error.request) {
+          this.showToastMessage("Erro de conexão com o servidor. Verifique sua conexão de internet.", true);
+        } else {
+          this.showToastMessage("Erro ao fazer login. Tente novamente mais tarde.", true);
+        }
       } finally {
         this.loading = false
       }
@@ -153,20 +187,20 @@ export default {
       alert("Funcionalidade em desenvolvimento. Entre em contato com o administrador.")
     },
   },
-}
-</script>
-
-<style scoped>
-.login-container {
+  }
+  </script>
+  
+  <style scoped>
+  .login-container {
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-}
-
-.login-card {
+  }
+  
+  .login-card {
   overflow: hidden;
   transition: transform 0.3s ease;
-}
-
-.login-card:hover {
+  }
+  
+  .login-card:hover {
   transform: translateY(-5px);
-}
-</style>
+  }
+  </style>

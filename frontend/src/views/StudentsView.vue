@@ -34,6 +34,23 @@
         :loading="deleteLoading"
         @confirm="deleteStudent"
       />
+      
+      <v-snackbar
+        v-model="showToast"
+        :color="toastColor"
+        :timeout="5000"
+        location="top"
+      >
+        {{ toastMessage }}
+        
+        <template v-slot:actions>
+          <v-btn
+            variant="text"
+            icon="mdi-close"
+            @click="showToast = false"
+          ></v-btn>
+        </template>
+      </v-snackbar>
     </v-container>
   </div>
 </template>
@@ -44,6 +61,7 @@ import AppHeader from "@/components/AppHeader.vue"
 import StudentTable from "@/components/students/StudentTable.vue"
 import StudentDialog from "@/components/students/StudentDialog.vue"
 import ConfirmDialog from "@/components/common/ConfirmDialog.vue"
+import { translateMessage } from "@/services/translationService"
 
 export default {
   name: "StudentsView",
@@ -69,6 +87,9 @@ export default {
       showDeleteDialog: false,
       selectedStudent: null,
       deleteLoading: false,
+      showToast: false,
+      toastMessage: "",
+      toastColor: "success",
       tableHeaders: [
         { title: "ID", key: "id", sortable: true, align: "start", width: "60px" },
         { title: "Nome", key: "name", sortable: true, align: "start" },
@@ -84,6 +105,7 @@ export default {
       this.loadStudents()
     },
     itemsPerPage() {
+      this.page = 1 
       this.loadStudents()
     },
   },
@@ -91,58 +113,73 @@ export default {
     this.loadStudents()
   },
   methods: {
+    showToastMessage(message, isError = false) {
+      this.toastMessage = translateMessage(message);
+      this.toastColor = isError ? "error" : "success";
+      this.showToast = true;
+    },
+    
     handleTableOptions(options) {
-      this.page = options.page || 1
-      this.itemsPerPage = options.itemsPerPage || 10
-      this.loadStudents()
+      if (options.page !== this.page) {
+        this.page = options.page || 1;
+      }
+      
+      if (options.itemsPerPage !== this.itemsPerPage) {
+        this.itemsPerPage = options.itemsPerPage || 10;
+        this.page = 1; 
+      }
+      
     },
     
     handleSearch(query) {
-      this.search = query
-      this.page = 1 
-      this.loadStudents()
+      this.search = query;
+      this.page = 1; 
+      this.loadStudents();
     },
     
     async loadStudents() {
-      this.loading = true
+      this.loading = true;
       try {
         const response = await this.studentStore.fetchStudents({
           page: this.page,
           pageSize: this.itemsPerPage,
           name: this.search || undefined,
-        })
+        });
 
-        this.students = response.data
-        this.totalStudents = response.pagination.total
+        this.students = response.data;
+        this.totalStudents = response.pagination.total;
       } catch (error) {
-        console.error("Erro ao carregar estudantes:", error)
+        console.error("Erro ao carregar estudantes:", error);
+        this.showToastMessage("Error fetching students", true);
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
     
     openStudentDialog(student = null) {
-      this.selectedStudent = student ? { ...student } : null
-      this.showStudentDialog = true
+      this.selectedStudent = student ? { ...student } : null;
+      this.showStudentDialog = true;
     },
     
     confirmDelete(student) {
-      this.selectedStudent = student
-      this.showDeleteDialog = true
+      this.selectedStudent = student;
+      this.showDeleteDialog = true;
     },
     
     async deleteStudent() {
-      if (!this.selectedStudent) return
+      if (!this.selectedStudent) return;
 
-      this.deleteLoading = true
+      this.deleteLoading = true;
       try {
-        await this.studentStore.deleteStudent(this.selectedStudent.id)
-        this.showDeleteDialog = false
-        this.loadStudents()
+        await this.studentStore.deleteStudent(this.selectedStudent.id);
+        this.showDeleteDialog = false;
+        this.showToastMessage("Student deleted successfully");
+        this.loadStudents();
       } catch (error) {
-        console.error("Erro ao excluir estudante:", error)
+        console.error("Erro ao excluir estudante:", error);
+        this.showToastMessage("Error deleting student", true);
       } finally {
-        this.deleteLoading = false
+        this.deleteLoading = false;
       }
     },
   },
