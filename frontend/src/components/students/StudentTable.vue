@@ -34,11 +34,12 @@
         :loading="loading"
         :items-per-page="itemsPerPage"
         :page="page"
+        :items-per-page-options="[5, 10, 15, 20]"
         :server-items-length="totalItems"
         class="student-data-table"
         hover
         density="compact"
-        @update:options="$emit('update-options', $event)"
+        @update:options="handleUpdateOptions"
       >
         <template v-slot:item.cpf="{ item }">
           {{ formatCPF(item.cpf) }}
@@ -46,7 +47,6 @@
 
         <template v-slot:item.email="{ item }">
           <span class="hidden-sm-and-down">{{ item.email }}</span>
-          <span class="hidden-md-and-up text-truncate d-inline-block" style="max-width: 120px;">{{ item.email }}</span>
         </template>
 
         <template v-slot:item.actions="{ item }">
@@ -139,6 +139,12 @@ export default {
       this.searchTimeout = setTimeout(() => {
         this.$emit('search', this.searchQuery);
       }, 300);
+    },
+    handleUpdateOptions(options) {
+      this.$emit('update-options', {
+        page: options.page,
+        itemsPerPage: options.itemsPerPage
+      });
     }
   }
 }

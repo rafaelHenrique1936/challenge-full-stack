@@ -102,3 +102,14 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Dependências
+node_modules/
+
+# Build
+dist/
+.vite/
+
+# Variáveis de ambiente
+.env
+.env.*

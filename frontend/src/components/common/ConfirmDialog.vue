@@ -1,25 +1,29 @@
 <template>
-  <v-dialog v-model="dialogVisible" max-width="400" persistent>
-    <v-card class="confirm-dialog">
-      <v-card-title :class="titleClass">
-        {{ title }}
+  <v-dialog v-model="dialogVisible" max-width="400px" persistent>
+    <v-card class="confirm-dialog" :class="typeClass">
+      <v-card-title class="d-flex align-center pa-4">
+        <v-icon :icon="icon" size="large" class="mr-2" :color="iconColor"></v-icon>
+        <span class="text-h5">{{ title }}</span>
       </v-card-title>
-      <v-card-text class="pt-4">
-        {{ message }}
+      
+      <v-card-text class="pa-4 pt-2">
+        <p class="text-body-1">{{ message }}</p>
       </v-card-text>
-      <v-card-actions>
+      
+      <v-divider></v-divider>
+      
+      <v-card-actions class="pa-4">
         <v-spacer></v-spacer>
-        <v-btn 
-          variant="text" 
-          :color="cancelColor"
-          @click="cancel"
+        <v-btn
+          variant="text"
+          @click="closeDialog"
           :disabled="loading"
         >
           {{ cancelText }}
         </v-btn>
-        <v-btn 
-          variant="elevated" 
-          :color="confirmColor" 
+        <v-btn
+          :color="confirmColor"
+          variant="elevated"
           :loading="loading"
           @click="confirm"
         >
@@ -55,18 +59,14 @@ export default {
       type: String,
       default: "primary"
     },
-    cancelColor: {
+    type: {
       type: String,
-      default: "grey-darken-1"
+      default: "info",
+      validator: (value) => ["info", "warning", "error", "success"].includes(value)
     },
     loading: {
       type: Boolean,
       default: false
-    },
-    type: {
-      type: String,
-      default: "default",
-      validator: (value) => ["default", "error", "warning", "success"].includes(value)
     }
   },
   emits: ["update:modelValue", "confirm", "cancel"],
@@ -79,27 +79,35 @@ export default {
         this.$emit("update:modelValue", value)
       }
     },
-    titleClass() {
-      const baseClass = "pb-2";
-      switch (this.type) {
-        case "error":
-          return `${baseClass} text-error`;
-        case "warning":
-          return `${baseClass} text-warning`;
-        case "success":
-          return `${baseClass} text-success`;
-        default:
-          return baseClass;
+    icon() {
+      const icons = {
+        info: "mdi-information",
+        warning: "mdi-alert",
+        error: "mdi-alert-circle",
+        success: "mdi-check-circle"
       }
+      return icons[this.type] || icons.info
+    },
+    iconColor() {
+      const colors = {
+        info: "info",
+        warning: "warning",
+        error: "error",
+        success: "success"
+      }
+      return colors[this.type] || colors.info
+    },
+    typeClass() {
+      return `confirm-dialog-${this.type}`
     }
   },
   methods: {
     confirm() {
       this.$emit("confirm")
     },
-    cancel() {
-      this.$emit("cancel")
+    closeDialog() {
       this.dialogVisible = false
+      this.$emit("cancel")
     }
   }
 }
@@ -109,5 +117,21 @@ export default {
 .confirm-dialog {
   border-radius: 8px;
   overflow: hidden;
+}
+
+.confirm-dialog-error .v-card-title {
+  background-color: rgba(var(--v-theme-error), 0.1);
+}
+
+.confirm-dialog-warning .v-card-title {
+  background-color: rgba(var(--v-theme-warning), 0.1);
+}
+
+.confirm-dialog-info .v-card-title {
+  background-color: rgba(var(--v-theme-info), 0.1);
+}
+
+.confirm-dialog-success .v-card-title {
+  background-color: rgba(var(--v-theme-success), 0.1);
 }
 </style>
