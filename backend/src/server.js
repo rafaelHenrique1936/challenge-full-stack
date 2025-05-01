@@ -1,6 +1,7 @@
 require("dotenv").config()
 const app = require("./app")
 const logger = require("./utils/logger")
+const knex = require("./database/connection")
 
 const PORT = process.env.PORT || 3050
 
@@ -16,6 +17,8 @@ process.on("unhandledRejection", (reason) => {
 
 async function startServer() {
   try {
+    await knex.raw("SELECT 1")
+    logger.info("Database connection successful")
 
     const server = app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`)
@@ -26,7 +29,10 @@ async function startServer() {
       logger.info(`${signal} received, shutting down gracefully`)
       server.close(() => {
         logger.info("HTTP server closed")
-       
+        knex.destroy().then(() => {
+          logger.info("Database connections closed")
+          process.exitCode = 0
+        })
       })
 
       setTimeout(() => {
