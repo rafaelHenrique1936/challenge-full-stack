@@ -1,28 +1,29 @@
 <template>
-  <div class="d-flex gap-2">
-    <v-tooltip text="Editar aluno">
+  <div class="d-flex justify-end">
+    <v-tooltip location="top" text="Editar">
       <template v-slot:activator="{ props }">
         <v-btn
-          v-bind="props"
           icon
           variant="text"
           color="primary"
           size="small"
+          v-bind="props"
           @click="$emit('edit')"
+          class="mr-1"
         >
           <v-icon>mdi-pencil</v-icon>
         </v-btn>
       </template>
     </v-tooltip>
     
-    <v-tooltip text="Excluir aluno">
+    <v-tooltip location="top" text="Excluir">
       <template v-slot:activator="{ props }">
         <v-btn
-          v-bind="props"
           icon
           variant="text"
           color="error"
           size="small"
+          v-bind="props"
           @click="$emit('delete')"
         >
           <v-icon>mdi-delete</v-icon>

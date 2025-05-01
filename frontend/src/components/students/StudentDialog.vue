@@ -92,12 +92,31 @@
         </v-btn>
       </v-card-actions>
     </v-card>
+    
+    <!-- Toast para mensagens -->
+    <v-snackbar
+      v-model="showToast"
+      :color="toastColor"
+      :timeout="5000"
+      location="top"
+    >
+      {{ toastMessage }}
+      
+      <template v-slot:actions>
+        <v-btn
+          variant="text"
+          icon="mdi-close"
+          @click="showToast = false"
+        ></v-btn>
+      </template>
+    </v-snackbar>
   </v-dialog>
 </template>
 
 <script>
 import { useStudentStore } from "@/stores/student"
 import { debounce } from "lodash"
+import { translateMessage, translateRAAvailabilityMessage } from "@/services/translationService"
 
 export default {
   name: "StudentDialog",
@@ -118,6 +137,9 @@ export default {
       raAvailable: null,
       raError: "",
       raHint: "",
+      showToast: false,
+      toastMessage: "",
+      toastColor: "success",
       studentData: this.initStudentData(),
       validationRules: {
         name: [
@@ -158,6 +180,9 @@ export default {
       handler(newStudent) {
         if (newStudent) {
           this.studentData = { ...newStudent }
+          if (this.studentData.cpf && this.studentData.cpf.length === 11) {
+            this.formatCPF();
+          }
         } else {
           this.resetForm()
         }
@@ -169,6 +194,12 @@ export default {
     this.checkRAAvailability = debounce(this.checkRAAvailabilityImpl, 500)
   },
   methods: {
+    showToastMessage(message, isError = false) {
+      this.toastMessage = translateMessage(message);
+      this.toastColor = isError ? "error" : "success";
+      this.showToast = true;
+    },
+    
     initStudentData() {
       return {
         name: "",
@@ -188,18 +219,20 @@ export default {
       this.checkingRA = true
       try {
         const response = await this.studentStore.checkRAAvailability(this.studentData.ra)
+        
         this.raAvailable = response.data.available
 
-        if (response.data.available) {
-          this.raHint = "RA disponível para uso"
+        if (this.raAvailable) {
+          this.raHint = translateRAAvailabilityMessage(response.data) || translateMessage("RA available for use");
           this.raError = ""
         } else {
-          this.raError = "Este RA já está em uso por outro estudante"
+          this.raError = translateRAAvailabilityMessage(response.data) || translateMessage("This RA is already in use by another student");
           this.raHint = ""
         }
       } catch (error) {
         console.error("Erro ao verificar disponibilidade do RA:", error)
-        this.raError = "Erro ao verificar disponibilidade do RA"
+        this.raError = translateMessage("Error checking RA availability");
+        this.showToastMessage("Error checking RA availability", true);
       } finally {
         this.checkingRA = false
       }
@@ -235,14 +268,22 @@ export default {
       try {
         if (this.isEditing) {
           await this.studentStore.updateStudent(this.student.id, this.studentData)
+          this.showToastMessage("Student updated successfully");
         } else {
           await this.studentStore.createStudent(this.studentData)
+          this.showToastMessage("Student created successfully");
         }
 
         this.closeDialog()
         this.$emit("saved")
       } catch (error) {
         console.error("Erro ao salvar estudante:", error)
+        
+        if (error.response && error.response.data && error.response.data.message) {
+          this.showToastMessage(error.response.data.message, true);
+        } else {
+          this.showToastMessage("Error saving student", true);
+        }
       } finally {
         this.saving = false
       }

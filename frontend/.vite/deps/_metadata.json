@@ -1,8 +1,79 @@
 {
-  "hash": "f170b6db",
+  "hash": "7cb57695",
   "configHash": "c9e25f7b",
-  "lockfileHash": "bbdc807f",
-  "browserHash": "387cfd11",
-  "optimized": {},
-  "chunks": {}
+  "lockfileHash": "a4655873",
+  "browserHash": "0f202ea3",
+  "optimized": {
+    "vue": {
+      "src": "../../node_modules/vue/dist/vue.runtime.esm-bundler.js",
+      "file": "vue.js",
+      "fileHash": "d8c03e8b",
+      "needsInterop": false
+    },
+    "axios": {
+      "src": "../../node_modules/axios/index.js",
+      "file": "axios.js",
+      "fileHash": "1c0958d2",
+      "needsInterop": false
+    },
+    "pinia": {
+      "src": "../../node_modules/pinia/dist/pinia.mjs",
+      "file": "pinia.js",
+      "fileHash": "ce79745f",
+      "needsInterop": false
+    },
+    "vuetify": {
+      "src": "../../node_modules/vuetify/lib/framework.js",
+      "file": "vuetify.js",
+      "fileHash": "08a303a3",
+      "needsInterop": false
+    },
+    "vuetify/components": {
+      "src": "../../node_modules/vuetify/lib/components/index.js",
+      "file": "vuetify_components.js",
+      "fileHash": "b5489c6e",
+      "needsInterop": false
+    },
+    "vuetify/directives": {
+      "src": "../../node_modules/vuetify/lib/directives/index.js",
+      "file": "vuetify_directives.js",
+      "fileHash": "5e56740d",
+      "needsInterop": false
+    },
+    "vuetify/iconsets/mdi": {
+      "src": "../../node_modules/vuetify/lib/iconsets/mdi.js",
+      "file": "vuetify_iconsets_mdi.js",
+      "fileHash": "cae5efda",
+      "needsInterop": false
+    },
+    "vue-router": {
+      "src": "../../node_modules/vue-router/dist/vue-router.mjs",
+      "file": "vue-router.js",
+      "fileHash": "72cd4492",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-ZDHZ5OW5": {
+      "file": "chunk-ZDHZ5OW5.js"
+    },
+    "chunk-3IKFQO3B": {
+      "file": "chunk-3IKFQO3B.js"
+    },
+    "chunk-HFRMNADZ": {
+      "file": "chunk-HFRMNADZ.js"
+    },
+    "chunk-3UQY44WI": {
+      "file": "chunk-3UQY44WI.js"
+    },
+    "chunk-TLL5SP34": {
+      "file": "chunk-TLL5SP34.js"
+    },
+    "chunk-IJV5NOMV": {
+      "file": "chunk-IJV5NOMV.js"
+    },
+    "chunk-PZ5AY32C": {
+      "file": "chunk-PZ5AY32C.js"
+    }
+  }
 }
