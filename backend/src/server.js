@@ -21,8 +21,7 @@ async function startServer() {
     logger.info("Database connection successful")
 
     const server = app.listen(PORT, () => {
-      logger.info(`Server running on port ${PORT}`)
-      logger.info(`Swagger documentation available at http://localhost:${PORT}/api-docs`)
+      logger.info(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
     })
 
     const gracefulShutdown = (signal) => {

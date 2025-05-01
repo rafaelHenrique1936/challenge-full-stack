@@ -60,14 +60,7 @@
                   density="compact"
                 ></v-checkbox>
                 
-                <v-btn
-                  variant="text"
-                  color="primary"
-                  @click="forgotPassword"
-                  size="small"
-                >
-                  Esqueceu a senha?
-                </v-btn>
+              
               </div>
             </v-form>
           </v-card-text>
@@ -182,9 +175,6 @@
       } finally {
         this.loading = false
       }
-    },
-    forgotPassword() {
-      alert("Funcionalidade em desenvolvimento. Entre em contato com o administrador.")
     },
   },
   }
