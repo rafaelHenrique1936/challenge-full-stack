@@ -6,7 +6,7 @@ const studentRoutes = require("./interfaces/routes/studentRoutes")
 const authRoutes = require("./interfaces/routes/authRoutes")
 const errorMiddleware = require("./interfaces/middlewares/errorMiddleware")
 const logger = require("./utils/logger")
-const swagger = require("./utils/swagger")
+
 
 const app = express()
 
@@ -18,7 +18,6 @@ app.use(morgan("combined", { stream: { write: (message) => logger.info(message.t
 
 app.use(express.json())
 
-app.use("/api-docs", swagger.serve, swagger.setup)
 
 app.use("/api/v1", studentRoutes)
 app.use("/api/v1/auth", authRoutes)
