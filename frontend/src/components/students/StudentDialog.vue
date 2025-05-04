@@ -92,30 +92,13 @@
         </v-btn>
       </v-card-actions>
     </v-card>
-    
-    <v-snackbar
-      v-model="showToast"
-      :color="toastColor"
-      :timeout="5000"
-      location="top"
-    >
-      {{ toastMessage }}
-      
-      <template v-slot:actions>
-        <v-btn
-          variant="text"
-          icon="mdi-close"
-          @click="showToast = false"
-        ></v-btn>
-      </template>
-    </v-snackbar>
   </v-dialog>
 </template>
 
 <script>
 import { useStudentStore } from "@/stores/student"
 import { debounce } from "lodash"
-import { translateMessage, translateRAAvailabilityMessage } from "@/services/translationService"
+import { translateMessage, translateRAAvailabilityMessage, translateCPFErrorMessage } from "@/services/translationService"
 
 export default {
   name: "StudentDialog",
@@ -123,7 +106,7 @@ export default {
     modelValue: Boolean,
     student: Object,
   },
-  emits: ["update:modelValue", "saved"],
+  emits: ["update:modelValue", "saved", "show-toast"],
   setup() {
     const studentStore = useStudentStore()
     return { studentStore }
@@ -136,9 +119,6 @@ export default {
       raAvailable: null,
       raError: "",
       raHint: "",
-      showToast: false,
-      toastMessage: "",
-      toastColor: "success",
       studentData: this.initStudentData(),
       validationRules: {
         name: [
@@ -193,10 +173,18 @@ export default {
     this.checkRAAvailability = debounce(this.checkRAAvailabilityImpl, 500)
   },
   methods: {
-    showToastMessage(message, isError = false) {
-      this.toastMessage = translateMessage(message);
-      this.toastColor = isError ? "error" : "success";
-      this.showToast = true;
+    emitToast(message, isError = false) {
+      // Verificar se a mensagem contém "CPF" e "already registered"
+      if (message && message.includes("CPF") && message.includes("already registered")) {
+        // Usar a função específica para traduzir mensagens de erro de CPF
+        message = translateCPFErrorMessage(message);
+      } else {
+        // Usar a função padrão de tradução
+        message = translateMessage(message);
+      }
+      
+      // Emitir evento para o componente pai mostrar o toast
+      this.$emit("show-toast", { message, isError });
     },
     
     initStudentData() {
@@ -231,7 +219,7 @@ export default {
       } catch (error) {
         console.error("Erro ao verificar disponibilidade do RA:", error)
         this.raError = translateMessage("Error checking RA availability");
-        this.showToastMessage("Error checking RA availability", true);
+        this.emitToast("Error checking RA availability", true);
       } finally {
         this.checkingRA = false
       }
@@ -267,10 +255,10 @@ export default {
       try {
         if (this.isEditing) {
           await this.studentStore.updateStudent(this.student.id, this.studentData)
-          this.showToastMessage("Student updated successfully");
+          this.emitToast("Student updated successfully");
         } else {
           await this.studentStore.createStudent(this.studentData)
-          this.showToastMessage("Student created successfully");
+          this.emitToast("Student created successfully");
         }
 
         this.closeDialog()
@@ -279,9 +267,11 @@ export default {
         console.error("Erro ao salvar estudante:", error)
         
         if (error.response && error.response.data && error.response.data.message) {
-          this.showToastMessage(error.response.data.message, true);
+          // Registrar a mensagem de erro exata para depuração
+          console.log("Mensagem de erro exata:", error.response.data.message);
+          this.emitToast(error.response.data.message, true);
         } else {
-          this.showToastMessage("Error saving student", true);
+          this.emitToast("Error saving student", true);
         }
       } finally {
         this.saving = false
