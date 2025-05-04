@@ -57,6 +57,21 @@
           />
         </template>
 
+        <template v-slot:bottom>
+          <div class="d-flex align-center justify-space-between pa-4">
+            <div class="text-caption text-grey">
+              Total: {{ totalItems }} alunos
+            </div>
+            <v-pagination
+              v-model="localPage"
+              :length="Math.ceil(totalItems / itemsPerPage)"
+              :total-visible="5"
+              @update:model-value="updatePage"
+              :disabled="loading"
+            ></v-pagination>
+          </div>
+        </template>
+
         <template v-slot:loading>
           <v-skeleton-loader
             v-for="n in itemsPerPage"
@@ -126,7 +141,8 @@ export default {
   data() {
     return {
       searchQuery: '',
-      searchTimeout: null
+      searchTimeout: null,
+      localPage: this.page
     }
   },
   methods: {
@@ -141,11 +157,37 @@ export default {
       }, 300);
     },
     handleUpdateOptions(options) {
-      this.$emit('update-options', {
-        page: options.page,
-        itemsPerPage: options.itemsPerPage
-      });
+      console.log('DataTable options updated:', options);
+      
+      // Atualiza quando mudar o itemsPerPage
+      if (options.itemsPerPage !== this.itemsPerPage) {
+        this.$emit('update-options', {
+          page: 1,
+          itemsPerPage: options.itemsPerPage
+        });
+      }
+    },
+    updatePage(newPage) {
+      console.log('Pagination clicked, new page:', newPage);
+      if (newPage !== this.page) {
+        this.$emit('update-options', {
+          page: newPage,
+          itemsPerPage: this.itemsPerPage
+        });
+      }
+    },
+  },
+  watch: {
+    page: {
+      immediate: true,
+      handler(newPage) {
+        console.log('Page prop changed to:', newPage);
+        this.localPage = newPage;
+      }
     }
+  },
+  mounted() {
+    console.log('StudentTable mounted, page:', this.page, 'localPage:', this.localPage);
   }
 }
 </script>

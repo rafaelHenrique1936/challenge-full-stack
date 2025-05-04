@@ -36,15 +36,6 @@ export function getApiUrl(path = '') {
   return `${basePath}${apiPath}`;
 }
 
-if (IS_DEVELOPMENT) {
-  console.log('Configurações de ambiente carregadas:', {
-    API_URL,
-    ENV,
-    IS_PRODUCTION,
-    IS_DEVELOPMENT
-  });
-}
-
 export default {
   API_URL,
   ENV,

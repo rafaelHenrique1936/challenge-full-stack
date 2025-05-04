@@ -22,6 +22,7 @@
         v-model="showStudentDialog"
         :student="selectedStudent"
         @saved="loadStudents"
+        @show-toast="handleToast"
       />
       
       <confirm-dialog
@@ -38,8 +39,10 @@
       <v-snackbar
         v-model="showToast"
         :color="toastColor"
-        :timeout="5000"
+        :timeout="8000"
         location="top"
+        :multi-line="true"
+        class="toast-message"
       >
         {{ toastMessage }}
         
@@ -98,47 +101,88 @@ export default {
         { title: "CPF", key: "cpf", sortable: true, align: "start", width: "120px", class: "hidden-xs-only" },
         { title: "Ações", key: "actions", sortable: false, align: "end", width: "100px" },
       ],
+      // Controle para evitar que o toast seja fechado prematuramente
+      toastTimer: null
     }
   },
   watch: {
-    page() {
-      this.loadStudents()
+    page(newPage, oldPage) {
+      console.log(`Page changed from ${oldPage} to ${newPage}`);
+      this.loadStudents();
     },
-    itemsPerPage() {
-      this.page = 1 
-      this.loadStudents()
+    itemsPerPage(newSize, oldSize) {
+      console.log(`Items per page changed from ${oldSize} to ${newSize}`);
+      this.page = 1;
+      this.loadStudents();
     },
   },
   mounted() {
-    this.loadStudents()
+    console.log('StudentsView mounted, loading students...');
+    this.loadStudents();
   },
   methods: {
+    handleToast({ message, isError = false }) {
+      this.showToastMessage(message, isError);
+    },
+    
     showToastMessage(message, isError = false) {
-      this.toastMessage = translateMessage(message);
-      this.toastColor = isError ? "error" : "success";
-      this.showToast = true;
+      // Limpar qualquer timer existente
+      if (this.toastTimer) {
+        clearTimeout(this.toastTimer);
+        this.toastTimer = null;
+      }
+      
+      // Fechar qualquer toast existente primeiro
+      this.showToast = false;
+      
+      // Aguardar o próximo ciclo para garantir que o toast anterior seja fechado
+      this.$nextTick(() => {
+        this.toastMessage = translateMessage(message);
+        this.toastColor = isError ? "error" : "success";
+        this.showToast = true;
+        
+        // Garantir que o toast permaneça visível pelo tempo definido
+        this.toastTimer = setTimeout(() => {
+          this.showToast = false;
+          this.toastTimer = null;
+        }, 8000); // 8 segundos
+      });
     },
     
     handleTableOptions(options) {
-      if (options.page !== this.page) {
-        this.page = options.page || 1;
+      console.log('Received options update:', options);
+      
+      if (options.page !== undefined && options.page !== this.page) {
+        console.log(`Setting page to ${options.page}`);
+        this.page = options.page;
+        // Forçar a recarga dos dados imediatamente
+        this.$nextTick(() => {
+          this.loadStudents();
+        });
       }
       
-      if (options.itemsPerPage !== this.itemsPerPage) {
-        this.itemsPerPage = options.itemsPerPage || 10;
-        this.page = 1; 
+      if (options.itemsPerPage !== undefined && options.itemsPerPage !== this.itemsPerPage) {
+        console.log(`Setting itemsPerPage to ${options.itemsPerPage}`);
+        this.itemsPerPage = options.itemsPerPage;
+        this.page = 1;
+        // Forçar a recarga dos dados imediatamente
+        this.$nextTick(() => {
+          this.loadStudents();
+        });
       }
-      
     },
     
     handleSearch(query) {
+      console.log('Search query:', query);
       this.search = query;
-      this.page = 1; 
+      this.page = 1;
       this.loadStudents();
     },
     
     async loadStudents() {
+      console.log(`Loading students for page ${this.page}, size ${this.itemsPerPage}, search: "${this.search}"`);
       this.loading = true;
+      
       try {
         const response = await this.studentStore.fetchStudents({
           page: this.page,
@@ -147,7 +191,13 @@ export default {
         });
 
         this.students = response.data;
-        this.totalStudents = response.pagination.total;
+        
+        // Garantir que o total seja extraído corretamente
+        if (response.pagination && typeof response.pagination.total === 'number') {
+          this.totalStudents = response.pagination.total;
+        }
+        
+        console.log(`Loaded ${this.students.length} students, total: ${this.totalStudents}`);
       } catch (error) {
         console.error("Erro ao carregar estudantes:", error);
         this.showToastMessage("Error fetching students", true);
@@ -183,6 +233,12 @@ export default {
       }
     },
   },
+  beforeUnmount() {
+    // Limpar o timer ao desmontar o componente
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+    }
+  }
 }
 </script>
 
@@ -190,5 +246,19 @@ export default {
 .v-container {
   max-width: 1200px;
   margin-top: 50px;
+}
+
+.toast-message {
+  font-weight: 500;
+}
+
+:deep(.v-snackbar__content) {
+  padding: 16px;
+  font-size: 1rem;
+}
+
+:deep(.v-snackbar__actions) {
+  align-self: flex-start;
+  margin-top: 4px;
 }
 </style>
