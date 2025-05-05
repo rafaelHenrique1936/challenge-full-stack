@@ -23,28 +23,15 @@ export const useStudentStore = defineStore("student", {
       this.error = null
 
       try {
-        // Ajuste aqui: Vamos tentar usar o parâmetro 'page' em vez de 'offset'
-        // Isso é uma suposição baseada em como muitos backends implementam paginação
 
-        console.log(`Fetching students: page=${page}, pageSize=${pageSize}, name=${name || "undefined"}`)
-
-        // Construir a URL com 'page' em vez de 'offset'
         let url = getApiUrl(`/api/v1/students?page=${page}&pageSize=${pageSize}`)
-
-        // Alternativamente, se o backend realmente espera 'offset', mas a contagem começa em 0
-        // let url = getApiUrl(`/api/v1/students?pageSize=${pageSize}&offset=${(page - 1) * pageSize}`)
 
         if (name) {
           url += `&name=${encodeURIComponent(name)}`
         }
 
-        console.log("API URL:", url)
-
         const response = await axios.get(url)
 
-        console.log("API response:", response.data)
-
-        // Verificar se a resposta contém dados
         if (!response.data.data || !Array.isArray(response.data.data)) {
           console.error("API response does not contain data array:", response.data)
           this.students = []
@@ -52,7 +39,6 @@ export const useStudentStore = defineStore("student", {
           this.students = response.data.data
         }
 
-        // Extrair o total corretamente da resposta
         let total = 0
         if (response.data.pagination && typeof response.data.pagination.total === "number") {
           total = response.data.pagination.total
@@ -61,8 +47,6 @@ export const useStudentStore = defineStore("student", {
         }
 
         this.totalStudents = total
-
-        console.log(`Fetched ${this.students.length} students, total: ${this.totalStudents}`)
 
         return {
           data: this.students,

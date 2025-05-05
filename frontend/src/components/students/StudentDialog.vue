@@ -174,16 +174,12 @@ export default {
   },
   methods: {
     emitToast(message, isError = false) {
-      // Verificar se a mensagem contém "CPF" e "already registered"
       if (message && message.includes("CPF") && message.includes("already registered")) {
-        // Usar a função específica para traduzir mensagens de erro de CPF
         message = translateCPFErrorMessage(message);
       } else {
-        // Usar a função padrão de tradução
         message = translateMessage(message);
       }
       
-      // Emitir evento para o componente pai mostrar o toast
       this.$emit("show-toast", { message, isError });
     },
     
@@ -267,8 +263,6 @@ export default {
         console.error("Erro ao salvar estudante:", error)
         
         if (error.response && error.response.data && error.response.data.message) {
-          // Registrar a mensagem de erro exata para depuração
-          console.log("Mensagem de erro exata:", error.response.data.message);
           this.emitToast(error.response.data.message, true);
         } else {
           this.emitToast("Error saving student", true);

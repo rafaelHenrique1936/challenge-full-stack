@@ -78,7 +78,6 @@ export const useAuthStore = defineStore("auth", {
       try {
         const response = await axios.put(getApiUrl('/api/v1/users/profile'), userData);
         
-        // Atualizar dados do usuário
         this.user = response.data.user;
         localStorage.setItem("user", JSON.stringify(this.user));
         
