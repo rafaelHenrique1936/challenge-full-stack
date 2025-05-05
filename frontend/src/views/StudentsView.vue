@@ -98,26 +98,22 @@ export default {
         { title: "Nome", key: "name", sortable: true, align: "start" },
         { title: "Email", key: "email", sortable: true, align: "start", class: "hidden-sm-and-down" },
         { title: "RA", key: "ra", sortable: true, align: "start", width: "100px" },
-        { title: "CPF", key: "cpf", sortable: true, align: "start", width: "120px", class: "hidden-xs-only" },
+        { title: "CPF", key: "cpf", sortable: true, align: "start", width: "180px", class: "hidden-xs-only" },
         { title: "Ações", key: "actions", sortable: false, align: "end", width: "100px" },
       ],
-      // Controle para evitar que o toast seja fechado prematuramente
       toastTimer: null
     }
   },
   watch: {
     page(newPage, oldPage) {
-      console.log(`Page changed from ${oldPage} to ${newPage}`);
       this.loadStudents();
     },
     itemsPerPage(newSize, oldSize) {
-      console.log(`Items per page changed from ${oldSize} to ${newSize}`);
       this.page = 1;
       this.loadStudents();
     },
   },
   mounted() {
-    console.log('StudentsView mounted, loading students...');
     this.loadStudents();
   },
   methods: {
@@ -126,46 +122,36 @@ export default {
     },
     
     showToastMessage(message, isError = false) {
-      // Limpar qualquer timer existente
       if (this.toastTimer) {
         clearTimeout(this.toastTimer);
         this.toastTimer = null;
       }
       
-      // Fechar qualquer toast existente primeiro
       this.showToast = false;
       
-      // Aguardar o próximo ciclo para garantir que o toast anterior seja fechado
       this.$nextTick(() => {
         this.toastMessage = translateMessage(message);
         this.toastColor = isError ? "error" : "success";
         this.showToast = true;
         
-        // Garantir que o toast permaneça visível pelo tempo definido
         this.toastTimer = setTimeout(() => {
           this.showToast = false;
           this.toastTimer = null;
-        }, 8000); // 8 segundos
+        }, 8000); 
       });
     },
     
     handleTableOptions(options) {
-      console.log('Received options update:', options);
-      
       if (options.page !== undefined && options.page !== this.page) {
-        console.log(`Setting page to ${options.page}`);
         this.page = options.page;
-        // Forçar a recarga dos dados imediatamente
         this.$nextTick(() => {
           this.loadStudents();
         });
       }
       
       if (options.itemsPerPage !== undefined && options.itemsPerPage !== this.itemsPerPage) {
-        console.log(`Setting itemsPerPage to ${options.itemsPerPage}`);
         this.itemsPerPage = options.itemsPerPage;
         this.page = 1;
-        // Forçar a recarga dos dados imediatamente
         this.$nextTick(() => {
           this.loadStudents();
         });
@@ -173,14 +159,12 @@ export default {
     },
     
     handleSearch(query) {
-      console.log('Search query:', query);
       this.search = query;
       this.page = 1;
       this.loadStudents();
     },
     
     async loadStudents() {
-      console.log(`Loading students for page ${this.page}, size ${this.itemsPerPage}, search: "${this.search}"`);
       this.loading = true;
       
       try {
@@ -192,12 +176,10 @@ export default {
 
         this.students = response.data;
         
-        // Garantir que o total seja extraído corretamente
         if (response.pagination && typeof response.pagination.total === 'number') {
           this.totalStudents = response.pagination.total;
         }
         
-        console.log(`Loaded ${this.students.length} students, total: ${this.totalStudents}`);
       } catch (error) {
         console.error("Erro ao carregar estudantes:", error);
         this.showToastMessage("Error fetching students", true);
@@ -234,7 +216,6 @@ export default {
     },
   },
   beforeUnmount() {
-    // Limpar o timer ao desmontar o componente
     if (this.toastTimer) {
       clearTimeout(this.toastTimer);
     }

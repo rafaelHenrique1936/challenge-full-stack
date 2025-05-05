@@ -157,9 +157,7 @@ export default {
       }, 300);
     },
     handleUpdateOptions(options) {
-      console.log('DataTable options updated:', options);
       
-      // Atualiza quando mudar o itemsPerPage
       if (options.itemsPerPage !== this.itemsPerPage) {
         this.$emit('update-options', {
           page: 1,
@@ -168,7 +166,6 @@ export default {
       }
     },
     updatePage(newPage) {
-      console.log('Pagination clicked, new page:', newPage);
       if (newPage !== this.page) {
         this.$emit('update-options', {
           page: newPage,
@@ -181,13 +178,11 @@ export default {
     page: {
       immediate: true,
       handler(newPage) {
-        console.log('Page prop changed to:', newPage);
         this.localPage = newPage;
       }
     }
   },
   mounted() {
-    console.log('StudentTable mounted, page:', this.page, 'localPage:', this.localPage);
   }
 }
 </script>

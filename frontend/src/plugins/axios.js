@@ -50,7 +50,6 @@ axios.interceptors.response.use(
         }
       }
       
-      // Log detalhado em desenvolvimento
       if (CONFIG.enableDetailedLogs) {
         console.error('Erro na resposta da API:', {
           status: error.response.status,

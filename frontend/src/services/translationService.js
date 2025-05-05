@@ -60,7 +60,6 @@ const translations = {
     es: "Este RA ya está en uso por otro estudiante",
   },
 
-  // Novas traduções do backend
   "Student with ID {id} not found": {
     "pt-BR": "Aluno com ID {id} não encontrado",
     es: "Estudiante con ID {id} no encontrado",
@@ -82,19 +81,16 @@ const translations = {
     es: "Por favor, proporcione un número de registro para verificar",
   },
 
-  // Adicionar a mensagem exata que está vindo do backend
   "CPF is already registered in the system": {
     "pt-BR": "CPF já está registrado no sistema",
     es: "CPF ya está registrado en el sistema",
   },
 
-  // Variações possíveis da mensagem
   "CPF already registered in the system": {
     "pt-BR": "CPF já está registrado no sistema",
     es: "CPF ya está registrado en el sistema",
   },
 
-  // Mensagem com o CPF formatado
   "CPF {formattedCpf} is already registered in the system": {
     "pt-BR": "CPF {formattedCpf} já está registrado no sistema",
     es: "CPF {formattedCpf} ya está registrado en el sistema",
@@ -131,12 +127,10 @@ export function translateMessage(message, params = {}) {
     translatedMessage = translations[message][language]
   }
 
-  // Substituir todos os parâmetros na mensagem traduzida
   Object.keys(params).forEach((key) => {
     translatedMessage = translatedMessage.replace(`{${key}}`, params[key])
   })
 
-  // Se a mensagem não foi traduzida mas contém parâmetros, tentar substituir os parâmetros na mensagem original
   if (translatedMessage === message && Object.keys(params).length > 0) {
     Object.keys(params).forEach((key) => {
       translatedMessage = translatedMessage.replace(`{${key}}`, params[key])
@@ -146,13 +140,11 @@ export function translateMessage(message, params = {}) {
   return translatedMessage
 }
 
-// Função para extrair o CPF de uma mensagem de erro
 export function extractCPFFromMessage(message) {
   const match = message.match(/CPF (\d+) is already/)
   return match ? match[1] : ""
 }
 
-// Função para traduzir mensagens de erro relacionadas ao CPF
 export function translateCPFErrorMessage(message) {
   const cpf = extractCPFFromMessage(message)
 
@@ -160,7 +152,6 @@ export function translateCPFErrorMessage(message) {
     return translateMessage("CPF {cpf} is already registered in the system", { cpf })
   }
 
-  // Se não conseguir extrair o CPF, tenta traduzir a mensagem diretamente
   return translateMessage(message)
 }
 
